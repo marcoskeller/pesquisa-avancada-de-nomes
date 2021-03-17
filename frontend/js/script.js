@@ -77,6 +77,8 @@ function render(){
 
  function renderizarBuscaUsuarios(){
      console.log("Função Buscar Usuário!");
+     
+     //Realizando a ordenação em ordem alfabética da lista de usuários encontrados
      listaUsuariosEncontrados.sort( (a, b) => a.name.localeCompare(b.name));
 
      listagemUsuarios = `
@@ -88,7 +90,36 @@ function render(){
         <ul class="lista-estatisticas>
      `;
 
-     
+     //Realizando uma busca para ver quantos generos Masculinos e quantos Femininos
+     listaUsuariosEncontrados.forEach((usuario) => {
+        
+        //Realizei um destructiring do objeto
+        const { name, gender, age, picture } = usuario;
+
+        if(gender.toLowerCase() === 'male')
+        {
+            quantidadeTotalMasculino = quantidadeTotalMasculino + 1;
+        }
+        if(gender.toLowerCase() === 'female')
+        {
+            quantidadeTotalFeminino = quantidadeTotalFeminino + 1;
+        }
+
+        //Realizando o somatório das idades
+        somatorioIdades = somatorioIdades + age;
+
+        //Exibi os usuários econtrados
+        exibicaoUsuarios = `
+            <li class="usuario-exbido">
+                <div class="img-conteudo">
+                    <img src="${picture.medium}" />
+                </div>
+                <span class="name-usuario">${name}</span>
+                <span class="idade=usuario">${age} anos</span>
+            </li>
+        `
+
+     })
 }
 
 
