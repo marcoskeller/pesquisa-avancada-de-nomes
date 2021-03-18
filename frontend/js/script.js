@@ -12,6 +12,8 @@ let listagemUsuarios = null;
 let exibicaoEstatisticas = null;
 let listagemEstatisticas = null;
 let numeroFormatado = null;
+let usersContainer = null;
+let statsContainer = null;
 
 let quantidadeTotalUsuarios = listaUsuarios.length;
 let quantidadeTotalMasculino = 0;
@@ -19,33 +21,36 @@ let quantidadeTotalFeminino = 0;
 let somatorioIdades = 0;
 let mediaIdades = 0;
 
-window.addEventListener('load', start)
+window.addEventListener('load', () => {
 
-function start(){
     console.log('Página Carregada!');
+
+    buscarUsuarios();
 
     formulario = document.querySelector("form");
     formulario.addEventListener("submit", (event) => event.preventDefault());
 
-    textoDigitadoInput = document.querySelector("#texto-digitado");
-    //texto-digitado.addEventListener("keyup", (event) => event.operandoInput(event));
+    textoDigitadoInput = document.querySelector("#textoDigitado");
+    textoDigitado.addEventListener("keyup", (event) => operandoInput(event));
 
-    botaoPesquisar = document.querySelector("#botao-pesquisar");
-    //botoa-pesquisar.addEventListener("click", (event) => event.operandoInput(event));
+    botaoPesquisar = document.querySelector("#botaoPesquisar");
+    botaoPesquisar.addEventListener("click", (event) => operandoInput(event));
 
     exibicaoUsuarios = document.querySelector(".exibicao-usuarios");
     exibicaoEstatisticas = document.querySelector(".exibicao-estatisticas");
+    
+    listagemUsuarios = document.querySelector(".listagemDeUsuarios");
+    listagemEstatisticas = document.querySelector(".listagemDeEstatisticas");
+    
+    usersContainer = document.querySelector(".listagemDeUsuarios");
+    statsContainer = document.querySelector(".listagemDeEstatisticas");
 
-    listagemUsuarios = document.querySelector(".listagen-usuarios");
-    listagemEstatisticas = document.querySelector(".listagem-estatisticas");
+    //numeroFormatado = Intl.NumberFormat('pt-BR');
 
-    numeroFormatado = Intl.NumberFormat('pt-BR');
+    });
 
-    buscarUsuarios();
 
-}
-
-async function buscarUsuarios(){
+const buscarUsuarios = async () => {
     console.log('Funçao Carregada!!!')
     const resource = await fetch('http://localhost:3001/users');
     const resposta = await resource.json();
@@ -53,29 +58,17 @@ async function buscarUsuarios(){
     listaUsuarios = resposta.map((usuario) => {
         const { name, gender, dob, picture } = usuario;
         return{
-            nome: `${name.first} ${name.last}`,
-            genero: gender,
-            idade: dob.age,
-            imagem: picture.medium
+            name: `${name.first} ${name.last}`,
+            gender: gender,
+            age: dob.age,
+            picture: picture.medium
         };
     });
-    //console.log(listaUsuarios);
-    render();
-}
+    //console.log(listaUsuarios);   
+};
 
-function render(){
-    //renderizarListaUsuarios();
-    //renderizarSomatorioIdades();
-    //renderizarMediasIdades();
- 
-    renderizarBuscaUsuarios();
-   
-    
 
-    
- }
-
- function renderizarBuscaUsuarios(){
+ const renderizarBuscaUsuarios = () =>  {
      console.log("Função Buscar Usuário!");
      
      //Realizando a ordenação em ordem alfabética da lista de usuários encontrados
@@ -110,19 +103,80 @@ function render(){
 
         //Exibi os usuários econtrados
         exibicaoUsuarios = `
-            <li class="usuario-exbido">
-                <div class="img-conteudo">
-                    <img src="${picture.medium}" />
+            <li class="exibicao-usuario">
+                <div class="img-usuario">
+                    <img src="${picture}" />
                 </div>
                 <span class="name-usuario">${name}</span>
                 <span class="idade=usuario">${age} anos</span>
             </li>
-        `
+        `;
 
-     })
-}
+        //
+        listagemUsuarios = listagemUsuarios + exibicaoUsuarios;
+        });
 
+        if(listaUsuariosEncontrados.length > 0)
+        {
+            mediaIdades = somatorioIdades / listaUsuariosEncontrados.length;
+        }
 
+        //Exibi as estatisticas dos usuários econtrados
+        exibicaoEstatisticas = `
+        <li class="estatistica-usuario"><strong>Masculino</strong>${quantidadeTotalMasculino}</li>
+        <li class="estatistica-usuario"><strong>Feminino</strong>${quantidadeTotalFeminino}</li>
+        <li class="estatistica-usuario"><strong>Soma das Idades>${somatorioIdades}</li>
+        <li class="estatistica-usuario"><strong>Média das Idade>${Math.floor(mediaIdades)}</li>
+        `;
 
+        listagemEstatisticas = listagemEstatisticas + exibicaoEstatisticas;
+        
+        //
+        usersContainer.innerHTML = listagemUsuarios;
+        //listagemUsuarios.innerHTML = listagemDeUsuarios
+        
+        //
+        statsContainer.innerHTML = listagemEstatisticas;
+        //listagemDeEstatisticas.innerHTML = exibicaoEstatisticas;
 
+     };
+    
+
+const operandoInput = (event) => {
+    if(event.target.id === "botaoPesquisar")
+    {
+        const consulta = event.target.previousElementSibling.value;
+        //const consulta = event.target.value; event.currentTarget.value
+        //const consulta = event.currentTarget.value;
+        if(consulta)
+        {
+            filtrarUsuarios(consulta);
+        }
+    }
+
+    if(event.target.id === "textoDigitado")
+    {
+        const consulta = event.target.value;
+        if(event.key === "Enter" && consulta)
+        {
+            filtrarUsuarios(consulta);
+        }
+    }
+
+};
+    const filtrarUsuarios = (consulta) => {
+        listaUsuariosEncontrados = [];
+
+        listaUsuarios.forEach((usuario) =>{
+            const { name, gender, age, picture } = usuario;
+            if(name.toLowerCase().includes(consulta.toLowerCase()))
+            {
+                let usuarioEcontrado = usuario;
+                listaUsuariosEncontrados = [...listaUsuariosEncontrados, usuarioEcontrado];
+            }
+        });
+      
+     renderizarBuscaUsuarios();
+
+    };
 
